@@ -1,15 +1,7 @@
 const BASE_IMAGES_DIR = "./Images/";
 const EXTENSIONS = ["jpg", "png", "jpeg", "webp"];
-
 const slides = Array.from(document.querySelectorAll(".slide"));
-const slideNumEl = document.getElementById("slideNum");
-const slideTotalEl = document.getElementById("slideTotal");
-const prevBtn = document.getElementById("prevBtn");
-const nextBtn = document.getElementById("nextBtn");
 const bgImg1 = document.getElementById("bgImg1");
-const bgImg2 = document.getElementById("bgImg2");
-
-slideTotalEl.textContent = slides.length;
 
 let currentSlide = 0;
 let currentStep = 0;
@@ -37,17 +29,10 @@ function loadImageWithFallback(indexNum, onSuccess, onFail) {
 
 function hydrateSlideImages(slide) {
   const i1 = slide.dataset.img1;
-  const i2 = slide.dataset.img2;
 
   if (i1) {
     loadImageWithFallback(i1, (url) => {
       bgImg1.style.backgroundImage = `url("${url}")`;
-    });
-  }
-
-  if (i2) {
-    loadImageWithFallback(i2, (url) => {
-      bgImg2.style.backgroundImage = `url("${url}")`;
     });
   }
 
@@ -83,14 +68,12 @@ function renderSlideState() {
   const activeSlide = slides[currentSlide];
   hydrateSlideImages(activeSlide);
 
-  const { reveals, stepNums } = getStepsForSlide(activeSlide);
+  const { reveals } = getStepsForSlide(activeSlide);
 
   reveals.forEach((el) => {
     const stepVal = Number(el.dataset.step || 1);
     el.classList.toggle("shown", stepVal <= currentStep);
   });
-
-  slideNumEl.textContent = currentSlide + 1;
 }
 
 function stepForward() {
@@ -134,9 +117,6 @@ document.addEventListener("keydown", (e) => {
     stepBackward();
   }
 });
-
-nextBtn.addEventListener("click", stepForward);
-prevBtn.addEventListener("click", stepBackward);
 
 currentStep = 1;
 renderSlideState();

@@ -13,7 +13,7 @@ body {
   user-select: none;
 }
 
-/* طبقة الخلفية: صورتان + فلتر يتحركون بزووم مستمر طول الوقت */
+/* طبقة الخلفية: صورة واحدة + فلتر بحركة Ken Burns مستمرة طول الوقت */
 .bg-stage {
   position: fixed;
   inset: 0;
@@ -27,19 +27,13 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  animation: continuousZoom 20s ease-in-out infinite alternate;
+  animation: continuousZoom 22s ease-in-out infinite alternate;
   will-change: transform, opacity;
 }
 
 .bg-layer-1 {
-  opacity: 0.42;
+  opacity: 0.55;
   background-color: #12151c;
-}
-
-.bg-layer-2 {
-  opacity: 0.24;
-  mix-blend-mode: screen;
-  animation: continuousZoomAlt 26s ease-in-out infinite alternate;
 }
 
 .bg-filter {
@@ -57,16 +51,7 @@ body {
     transform: scale(1) translate3d(0, 0, 0);
   }
   100% {
-    transform: scale(1.13) translate3d(-1.5%, -1%, 0);
-  }
-}
-
-@keyframes continuousZoomAlt {
-  0% {
-    transform: scale(1.1) translate3d(1.5%, 1%, 0);
-  }
-  100% {
-    transform: scale(1.02) translate3d(-1%, 1.2%, 0);
+    transform: scale(1.14) translate3d(-1.5%, -1%, 0);
   }
 }
 
@@ -149,7 +134,7 @@ body {
 
 .slide-footer-meta {
   position: fixed;
-  bottom: 42px;
+  bottom: 32px;
   right: 56px;
   font-size: 12px;
   letter-spacing: 1.5px;
@@ -159,26 +144,22 @@ body {
 /* 1: الافتتاح */
 .hero-panel {
   text-align: center;
-  max-width: 900px;
+  max-width: 1100px;
 }
 
 .kicker {
   color: #f3b54a;
-  font-size: 14px;
-  letter-spacing: 1.5px;
-  margin-bottom: 10px;
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 600;
+  letter-spacing: 3px;
+  margin-bottom: 16px;
 }
 
 .hero-title {
-  font-size: clamp(44px, 6.5vw, 84px);
+  font-size: clamp(56px, 8.5vw, 112px);
   font-weight: 800;
-  text-shadow: 0 12px 35px rgba(0, 0, 0, 0.65);
-}
-
-.subtitle {
-  margin-top: 12px;
-  font-size: clamp(18px, 2.2vw, 26px);
-  color: rgba(245, 247, 250, 0.88);
+  line-height: 1.15;
+  text-shadow: 0 14px 40px rgba(0, 0, 0, 0.72);
 }
 
 /* 2: الآية */
@@ -345,6 +326,18 @@ body {
   height: 8px;
   border-radius: 50%;
   background: #e02b2e;
+  animation: recBlink 1.8s ease-in-out infinite;
+}
+
+@keyframes recBlink {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
 }
 
 .roles-heading-row {
@@ -381,11 +374,34 @@ body {
   padding: 16px 20px;
   text-align: right;
   backdrop-filter: blur(8px);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.top-red-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(217, 43, 46, 0.55);
 }
 
 .card-icon {
   font-size: 22px;
   margin-bottom: 8px;
+  display: inline-block;
+  animation: iconFloat 3.2s ease-in-out infinite;
+}
+
+.roles-grid .top-red-card:nth-child(2) .card-icon { animation-delay: 0.2s; }
+.roles-grid .top-red-card:nth-child(3) .card-icon { animation-delay: 0.4s; }
+.roles-grid .top-red-card:nth-child(4) .card-icon { animation-delay: 0.6s; }
+.roles-grid .top-red-card:nth-child(5) .card-icon { animation-delay: 0.8s; }
+.roles-grid .top-red-card:nth-child(6) .card-icon { animation-delay: 1s; }
+
+@keyframes iconFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.06);
+  }
 }
 
 .card-title {
@@ -420,6 +436,32 @@ body {
   height: 10px;
   margin: 0 2px;
   border-radius: 2px;
+  opacity: 0.45;
+  transform: scaleX(0.88);
+  transform-origin: right center;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.reveal.shown .tl-seg {
+  animation: timelineSequence 2.4s ease-in-out infinite;
+}
+
+.color-timeline .tl-seg:nth-of-type(2) { animation-delay: 0s; }
+.color-timeline .tl-seg:nth-of-type(3) { animation-delay: 0.2s; }
+.color-timeline .tl-seg:nth-of-type(4) { animation-delay: 0.4s; }
+.color-timeline .tl-seg:nth-of-type(5) { animation-delay: 0.6s; }
+.color-timeline .tl-seg:nth-of-type(6) { animation-delay: 0.8s; }
+.color-timeline .tl-seg:nth-of-type(7) { animation-delay: 1s; }
+
+@keyframes timelineSequence {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scaleX(0.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1.03);
+  }
 }
 
 .tl-seg.red {
@@ -548,40 +590,6 @@ body {
   font-weight: 700;
   letter-spacing: 3px;
   text-shadow: 0 14px 36px rgba(0, 0, 0, 0.7);
-}
-
-/* شريط التحكم السفلي */
-.controls {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 28px;
-  background: linear-gradient(to top, rgba(7, 9, 14, 0.85), transparent);
-}
-
-.controls button {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 6px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 13px;
-  transition: background 0.2s;
-}
-
-.controls button:hover {
-  background: rgba(217, 43, 46, 0.8);
-}
-
-.hint {
-  font-size: 12px;
-  color: rgba(245, 247, 250, 0.68);
 }
 
 @media (max-width: 900px) {
