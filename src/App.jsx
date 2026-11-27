@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-
+import React, { useState, useEffect } from "react";
+import "./styles.css";
 import img1 from "../Images/1.png";
 import img2 from "../Images/2.jpg";
 import img3 from "../Images/3.jpg";
@@ -12,20 +12,9 @@ import img9 from "../Images/9.jpg";
 import img10 from "../Images/10.jpg";
 import img11 from "../Images/11.jpg";
 import img12 from "../Images/12.png";
+import logoLgna from "../Images/logo lgna.png";
 
-const STORAGE_KEY = "a3lmy100_om_elnour_roster_2026_2027";
-
-const MEDIA_TRACKS = [
-  { code: "VIDEO", title: "فيديو", desc: "لقطات الأنشطة والمعسكرات" },
-  { code: "PHOTO", title: "تصوير فوتوغرافي", desc: "كاميرات وإضاءة وكادرات" },
-  { code: "EDIT", title: "معالجة وتعديل", desc: "تنقية وألوان وريتوتش" },
-  { code: "GRAPHIC DESIGNER", title: "تصميم جرافيك", desc: "بوسترات وهوية وسوشيال ميديا" },
-  { code: "VIDEO EDITOR", title: "مونتاج فيديو", desc: "قص ودمج وصوت وتلوين" },
-  { code: "DRONE", title: "تصوير درون", desc: "لقطات من فوق" },
-];
-
-const DEFAULT_ROSTER = [
-  "يؤانا طارق",
+const INITIAL_XIII_MEMBERS = [
   "ماريو جرجس",
   "فيرو اشرف",
   "جورج موسي",
@@ -34,694 +23,843 @@ const DEFAULT_ROSTER = [
   "افرايم نبيل",
   "كيرلس عزت",
   "ابانوب فتحي",
-  "عبد الله فتحي",
-  "ماریهان غبريال",
+  "عبدالله فتحي",
+  "ميرهان غبريال",
   "توماس اشرف",
   "جون حنا",
   "مادونا هاني",
-  "مینا رزق",
+  "مينا رزق",
   "يوسف فوكية",
   "بولا عصام",
   "عادل عيد",
   "مارينا ميخائيل",
   "ابانوب جرجس",
   "كيرلس نان",
-].map((name, index) => ({
-  id: `member-${index + 1}`,
-  name,
-  role: "عضو اللجنة الإعلامية",
-  track: "A3LMY100 • XIII",
-  notes: "مجموعة أم النور الكشفية — 2026 / 2027",
-}));
+];
 
-const SLIDE_CONFIG = [
+const MEDIA_TRACKS = [
   {
-    num: 1,
-    navLabel: "01 البداية",
-    badge: "SLIDE 01 • OM ELNOUR MEDIA COMMITTEE",
-    title: "A3LMY100 — إعلا 100",
-    subtitle: "مجموعة أم النور الكشفية • اللجنة الإعلامية — موسم 2026 / 2027",
-    image: img1,
-    fit: "cover",
+    id: "video",
+    en: "VIDEO",
+    ar: "فيديو",
+    desc: "لقطات الأنشطة والمعسكرات",
+    icon: "🎬",
   },
   {
-    num: 2,
-    navLabel: "02 الآية",
-    badge: "SLIDE 02 • VERSE",
-    title: "رسالة النور",
-    subtitle:
-      "«فَلْيُضِئْ نُورُكُمْ هَكَذَا قُدَّامَ النَّاسِ، لِكَيْ يَرَوْا أَعْمَالَكُمُ الْحَسَنَةَ، وَيُمَجِّدُوا أَبَاكُمُ الَّذِي فِي السَّمَاوَاتِ»",
-    image: img2,
-    fit: "contain",
+    id: "photo",
+    en: "PHOTO",
+    ar: "تصوير فوتوغرافي",
+    desc: "كاميرات وإضاءة وكادرات",
+    icon: "📸",
   },
   {
-    num: 3,
-    navLabel: "03 الهيكل",
-    badge: "SLIDE 03 • LEADERSHIP STRUCTURE",
-    title: "هيكل اللجنة",
-    subtitle: "قيادة وتنظيم موسم 2026 / 2027",
-    image: img3,
-    fit: "contain",
-    leaders: [
-      { name: "ق. يؤانا طارق", role: "قائد اللجنة" },
-      { name: "ق. كيرلس نان", role: "مساعد قائد" },
-      { name: "ق. يوسف فوكية", role: "هيكل اللجنة" },
-    ],
+    id: "edit",
+    en: "EDIT",
+    ar: "معالجة وتعديل",
+    desc: "تنقية وألوان وريتوتش",
+    icon: "✨",
   },
   {
-    num: 4,
-    navLabel: "04 Impact X 5",
-    badge: "SLIDE 04 • IMPACT X 5",
-    title: "ONE TEAM | MANY TALENTS | ONE IMPACT",
-    subtitle: "إعلا 100 — مجموعة أم النور الكشفية 2026 / 2027",
-    image: img4,
-    fit: "contain",
+    id: "graphic",
+    en: "GRAPHIC DESIGNER",
+    ar: "تصميم جرافيك",
+    desc: "بوسترات وهوية وسوشيال ميديا",
+    icon: "🎨",
   },
   {
-    num: 5,
-    navLabel: "05 التخصصات",
-    badge: "SLIDE 05 • MEDIA TRACKS",
-    title: "تخصصات اللجنة الإعلامية",
-    subtitle: "الأدوار والمهام الأساسية داخل الفريق",
-    image: img5,
-    fit: "contain",
-    showTracks: true,
+    id: "editor",
+    en: "VIDEO EDITOR",
+    ar: "مونتاج فيديو",
+    desc: "قص ودمج وصوت وتلوين",
+    icon: "🎞️",
   },
   {
-    num: 6,
-    navLabel: "06 الأعضاء",
-    badge: "SLIDE 06 • TEAM ROSTER (XIII)",
-    title: "قائمة أعضاء اللجنة",
-    subtitle: "إدارة وتعديل وحذف الأعضاء مع حفظ تلقائي على المتصفح",
-    image: img6,
-    fit: "contain",
-    showRoster: true,
-  },
-  {
-    num: 7,
-    navLabel: "07 TOP LEADER",
-    badge: "SLIDE 07 • TOP LEADER",
-    title: "مريهان غبريال & جورج موسي",
-    subtitle: "A3LMY100 • 2026 / 2027",
-    image: img7,
-    fit: "contain",
-  },
-  {
-    num: 8,
-    navLabel: "08 XVIII",
-    badge: "SLIDE 08 • IMPACT XVIII",
-    title: "فادي كمال X مرثا نعمت الله",
-    subtitle: "A3LMY100 • 2026 / 2027",
-    image: img8,
-    fit: "contain",
-  },
-  {
-    num: 9,
-    navLabel: "09 IX",
-    badge: "SLIDE 09 • IMPACT IX",
-    title: "مادونا هاني X مايكل إكرامي",
-    subtitle: "A3LMY100 • 2026 / 2027",
-    image: img9,
-    fit: "contain",
-  },
-  {
-    num: 10,
-    navLabel: "10 II",
-    badge: "SLIDE 10 • IMPACT II",
-    title: "فيرو اشرف X فادي القس",
-    subtitle: "A3LMY100 • 2026 / 2027",
-    image: img10,
-    fit: "contain",
-  },
-  {
-    num: 11,
-    navLabel: "11 XIV",
-    badge: "SLIDE 11 • IMPACT XIV",
-    title: "يوسف فوكية X بولا رأفت",
-    subtitle: "A3LMY100 • 2026 / 2027",
-    image: img11,
-    fit: "contain",
-  },
-  {
-    num: 12,
-    navLabel: "12 الختام",
-    badge: "SLIDE 12 • THANK YOU",
-    title: "شكراً لمتابعتكم",
-    subtitle: "مجموعة أم النور الكشفية — اللجنة الإعلامية 2026 / 2027",
-    image: img12,
-    fit: "contain",
+    id: "drone",
+    en: "DRONE",
+    ar: "تصوير درون",
+    desc: "لقطات سينمائية من فوق",
+    icon: "🚁",
   },
 ];
 
-const SCOPED_FIX_CSS = `
-  .a3-root {
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    overflow-x: hidden;
-  }
-  .a3-nav {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 10px 14px;
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    backdrop-filter: blur(10px);
-  }
-  .a3-pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    max-width: 100%;
-  }
-  .a3-pill {
-    padding: 5px 10px;
-    font-size: 12px;
-    border-radius: 999px;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .a3-main {
-    flex: 1;
-    width: 100%;
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 16px;
-    box-sizing: border-box;
-  }
-  .a3-slide-box {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    align-items: center;
-    text-align: center;
-  }
-  .a3-media-frame {
-    width: 100%;
-    max-width: 820px;
-    max-height: 46dvh;
-    border-radius: 14px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.25);
-  }
-  .a3-media-frame img {
-    width: 100%;
-    max-height: 46dvh;
-    height: auto;
-    display: block;
-  }
-  .a3-fit-cover {
-    object-fit: cover;
-  }
-  .a3-fit-contain {
-    object-fit: contain;
-  }
-  .a3-title {
-    margin: 4px 0;
-    font-size: clamp(1.35rem, 2.8vw, 2.2rem);
-    line-height: 1.25;
-  }
-  .a3-sub {
-    margin: 0 auto;
-    max-width: 760px;
-    font-size: clamp(0.95rem, 1.4vw, 1.15rem);
-    line-height: 1.6;
-  }
-  .a3-leaders {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 10px;
-    width: 100%;
-    max-width: 820px;
-  }
-  .a3-leader-card {
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: rgba(255, 255, 255, 0.04);
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .a3-tracks {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: 10px;
-    width: 100%;
-    text-align: right;
-  }
-  .a3-track-card {
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: rgba(255, 255, 255, 0.04);
-  }
-  .a3-track-card h3,
-  .a3-track-card p {
-    margin: 4px 0 0;
-  }
-  .a3-roster-wrap {
-    display: grid;
-    grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr);
-    gap: 14px;
-    width: 100%;
-    text-align: right;
-  }
-  @media (max-width: 820px) {
-    .a3-roster-wrap {
-      grid-template-columns: 1fr;
+const SLIDES_META = [
+  { id: 0, label: "00 الدخول", bg: null },
+  { id: 1, label: "01 البداية", bg: img1 },
+  { id: 2, label: "02 الآية", bg: img2 },
+  { id: 3, label: "03 الهيكل", bg: img3 },
+  { id: 4, label: "04 Impact X 5", bg: img4 },
+  { id: 5, label: "05 التخصصات", bg: img5 },
+  { id: 6, label: "06 TOP LEADER", bg: img7 },
+  { id: 7, label: "07 XIII", bg: img6 },
+  { id: 8, label: "08 XVIII", bg: img8 },
+  { id: 9, label: "09 IX", bg: img9 },
+  { id: 10, label: "10 II", bg: img10 },
+  { id: 11, label: "11 XIV", bg: img11 },
+  { id: 12, label: "12 الختام", bg: img12 },
+];
+
+const TEAM_CONFIGS = {
+  7: {
+    storageKey: "a3lmy100_team_xiii_v1",
+    teamName: "impact • XIII",
+    mode: "single_leader",
+    leader: "يؤانا طارق",
+    defaultMembers: INITIAL_XIII_MEMBERS,
+    placeholderSlots: 0,
+  },
+  8: {
+    storageKey: "a3lmy100_team_xviii_v1",
+    teamName: "IMPACT XVIII",
+    mode: "dual_x",
+    leftLeader: "فادي كمال",
+    rightLeader: "مرثا نعمت الله",
+    defaultMembers: [],
+    placeholderSlots: 15,
+  },
+  9: {
+    storageKey: "a3lmy100_team_ix_v1",
+    teamName: "IMPACT IX",
+    mode: "dual_x",
+    leftLeader: "مادونا هاني",
+    rightLeader: "مايكل إكرامي",
+    defaultMembers: [],
+    placeholderSlots: 15,
+  },
+  10: {
+    storageKey: "a3lmy100_team_ii_v1",
+    teamName: "IMPACT II",
+    mode: "dual_x",
+    leftLeader: "فيرو اشرف",
+    rightLeader: "فادي القس",
+    defaultMembers: [],
+    placeholderSlots: 15,
+  },
+  11: {
+    storageKey: "a3lmy100_team_xiv_v1",
+    teamName: "IMPACT XIV",
+    mode: "dual_x",
+    leftLeader: "يوسف فوكية",
+    rightLeader: "بولا رأفت",
+    defaultMembers: [],
+    placeholderSlots: 15,
+  },
+};
+
+function RosterSlide({ config }) {
+  const [members, setMembers] = useState(() => {
+    try {
+      const saved = localStorage.getItem(config.storageKey);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
     }
-  }
-  .a3-roster-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
-    gap: 8px;
-    max-height: 44dvh;
-    overflow-y: auto;
-    padding-left: 4px;
-  }
-  .a3-member-card {
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: rgba(255, 255, 255, 0.04);
-    cursor: pointer;
-  }
-  .a3-member-card.is-selected {
-    border-color: #f59e0b;
-  }
-  .a3-member-card h4 {
-    margin: 6px 0 2px;
-    font-size: 0.98rem;
-  }
-  .a3-member-card p {
-    margin: 0;
-    font-size: 0.8rem;
-    opacity: 0.82;
-  }
-  .a3-actions {
-    display: flex;
-    gap: 6px;
-    justify-content: flex-end;
-  }
-  .a3-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: rgba(255, 255, 255, 0.04);
-  }
-  .a3-form label {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 0.88rem;
-  }
-  .a3-form input,
-  .a3-form textarea {
-    padding: 8px 10px;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: rgba(0, 0, 0, 0.25);
-    color: inherit;
-    font-family: inherit;
-  }
-`;
-
-function useTypewriter(text, speed = 22, active = true) {
-  const [displayed, setDisplayed] = useState(active ? "" : text);
-
-  useEffect(() => {
-    if (!active) {
-      setDisplayed(text);
-      return;
-    }
-
-    setDisplayed("");
-    if (!text) return;
-
-    let i = 0;
-    const timer = setInterval(() => {
-      i += 1;
-      setDisplayed(text.slice(0, i));
-      if (i >= text.length) clearInterval(timer);
-    }, speed);
-
-    return () => clearInterval(timer);
-  }, [text, speed, active]);
-
-  return displayed;
-}
-
-function loadRoster() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_ROSTER;
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_ROSTER;
-  } catch {
-    return DEFAULT_ROSTER;
-  }
-}
-
-export default function App() {
-  const [slideIndex, setSlideIndex] = useState(0);
-  const [roster, setRoster] = useState(loadRoster);
-  const [selectedMemberId, setSelectedMemberId] = useState(
-    () => loadRoster()[0]?.id || ""
-  );
-
-  const [formState, setFormState] = useState({
-    name: "",
-    role: "عضو اللجنة الإعلامية",
-    track: "A3LMY100 • XIII",
-    notes: "",
+    return config.defaultMembers;
   });
-  const [editingId, setEditingId] = useState(null);
 
-  const mainRef = useRef(null);
-  const currentSlide = useMemo(
-    () => SLIDE_CONFIG[slideIndex] || SLIDE_CONFIG[0],
-    [slideIndex]
+  const [leadersRevealed, setLeadersRevealed] = useState(
+    config.mode === "single_leader"
   );
+  const [openMenuIdx, setOpenMenuIdx] = useState(null);
+  const [editingIdx, setEditingIdx] = useState(null);
+  const [editValue, setEditValue] = useState("");
+  const [isAdding, setIsAdding] = useState(false);
+  const [newName, setNewName] = useState("");
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(roster));
-    } catch {
-      // تجاهل أخطاء التخزين
+      localStorage.setItem(config.storageKey, JSON.stringify(members));
+    } catch (e) {
+      console.error(e);
     }
-  }, [roster]);
+  }, [members, config.storageKey]);
 
-  useEffect(() => {
-    if (roster.length > 0 && !roster.some((m) => m.id === selectedMemberId)) {
-      setSelectedMemberId(roster[0].id);
+  const handleAddMember = (e) => {
+    e.preventDefault();
+    const trimmed = newName.trim();
+    if (!trimmed) return;
+    setMembers((prev) => [...prev, trimmed]);
+    setNewName("");
+    setIsAdding(false);
+  };
+
+  const handleStartEdit = (idx) => {
+    setEditingIdx(idx);
+    setEditValue(members[idx]);
+    setOpenMenuIdx(null);
+  };
+
+  const handleSaveEdit = (idx) => {
+    const trimmed = editValue.trim();
+    if (trimmed) {
+      setMembers((prev) => prev.map((item, i) => (i === idx ? trimmed : item)));
     }
-  }, [roster, selectedMemberId]);
+    setEditingIdx(null);
+  };
 
-  const typedSubtitle = useTypewriter(
-    currentSlide.subtitle,
-    18,
-    slideIndex === 0 || slideIndex === 1
+  const handleDelete = (idx) => {
+    setMembers((prev) => prev.filter((_, i) => i !== idx));
+    setOpenMenuIdx(null);
+  };
+
+  const handleReset = () => {
+    setMembers(config.defaultMembers);
+    setOpenMenuIdx(null);
+  };
+
+  const remainingPlaceholders = Math.max(
+    0,
+    config.placeholderSlots - members.length - 1
   );
 
-  useEffect(() => {
-    const onKeyDown = (e) => {
-      const tag = e.target?.tagName?.toLowerCase();
-      if (tag === "input" || tag === "textarea" || tag === "select") return;
-
-      if (e.key === "ArrowRight" || e.key === "PageDown") {
-        setSlideIndex((prev) => (prev + 1) % SLIDE_CONFIG.length);
-      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
-        setSlideIndex(
-          (prev) => (prev - 1 + SLIDE_CONFIG.length) % SLIDE_CONFIG.length
-        );
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
-
-  const goToSlide = (idx) => {
-    const next = ((idx % SLIDE_CONFIG.length) + SLIDE_CONFIG.length) % SLIDE_CONFIG.length;
-    setSlideIndex(next);
-    if (mainRef.current) {
-      mainRef.current.scrollTo({ top: 0, behavior: "auto" });
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const cleanName = formState.name.trim();
-    if (!cleanName) return;
-
-    if (editingId) {
-      setRoster((prev) =>
-        prev.map((item) =>
-          item.id === editingId
-            ? {
-                ...item,
-                name: cleanName,
-                role: formState.role.trim() || "عضو اللجنة الإعلامية",
-                track: formState.track.trim() || "A3LMY100",
-                notes: formState.notes.trim(),
-              }
-            : item
-        )
-      );
-      setSelectedMemberId(editingId);
-      setEditingId(null);
-    } else {
-      const created = {
-        id: `member-${Date.now()}`,
-        name: cleanName,
-        role: formState.role.trim() || "عضو اللجنة الإعلامية",
-        track: formState.track.trim() || "A3LMY100",
-        notes: formState.notes.trim(),
-      };
-      setRoster((prev) => [...prev, created]);
-      setSelectedMemberId(created.id);
-    }
-
-    setFormState({
-      name: "",
-      role: "عضو اللجنة الإعلامية",
-      track: "A3LMY100 • XIII",
-      notes: "",
-    });
-  };
-
-  const startEdit = (member) => {
-    setEditingId(member.id);
-    setFormState({
-      name: member.name,
-      role: member.role,
-      track: member.track,
-      notes: member.notes || "",
-    });
-  };
-
-  const deleteMember = (id) => {
-    setRoster((prev) => prev.filter((m) => m.id !== id));
-    if (editingId === id) {
-      setEditingId(null);
-    }
-  };
-
-  const resetRoster = () => {
-    setRoster(DEFAULT_ROSTER);
-    setSelectedMemberId(DEFAULT_ROSTER[0].id);
-    setEditingId(null);
-  };
-
-  const displaySubtitle =
-    slideIndex === 0 || slideIndex === 1 ? typedSubtitle : currentSlide.subtitle;
-
   return (
-    <div dir="rtl" className="app-shell a3-root">
-      <style>{SCOPED_FIX_CSS}</style>
-
-      <header className="top-nav a3-nav">
-        <div className="brand-mark">A3LMY100 • 2026/2027</div>
-
-        <nav className="a3-pills" aria-label="التنقل بين السلايدات الـ 12">
-          {SLIDE_CONFIG.map((s, idx) => (
-            <button
-              key={s.num}
-              type="button"
-              onClick={() => goToSlide(idx)}
-              className={`nav-pill a3-pill ${slideIndex === idx ? "is-active" : ""}`}
-            >
-              {s.navLabel}
-            </button>
-          ))}
-        </nav>
-
-        <div className="step-controls">
+    <div
+      className="slide-inner roster-slide"
+      onClick={() => setOpenMenuIdx(null)}
+    >
+      <div className="roster-top-bar">
+        <div className="team-badge-glow">{config.teamName}</div>
+        {config.defaultMembers.length > 0 && (
           <button
             type="button"
-            onClick={() => goToSlide(slideIndex - 1)}
-            className="icon-btn"
+            className="subtle-reset-btn"
+            onClick={handleReset}
+            title="استعادة القائمة الأصلية"
           >
-            السابق
+            ↺
           </button>
-          <span className="slide-counter">
-            {slideIndex + 1} / {SLIDE_CONFIG.length}
-          </span>
-          <button
-            type="button"
-            onClick={() => goToSlide(slideIndex + 1)}
-            className="icon-btn"
-          >
-            التالي
-          </button>
+        )}
+      </div>
+
+      {config.mode === "single_leader" ? (
+        <div className="single-leader-header">
+          <span className="leader-crown-tag">LEADER</span>
+          <h2 className="single-leader-name">{config.leader}</h2>
         </div>
-      </header>
-
-      <main ref={mainRef} className="stage-viewport a3-main">
-        <section key={currentSlide.num} className="slide is-active a3-slide-box">
-          <span className="eyebrow">{currentSlide.badge}</span>
-          <h1 className="a3-title">{currentSlide.title}</h1>
-          <p className="a3-sub">{displaySubtitle}</p>
-
-          <div className="a3-media-frame">
-            <img
-              src={currentSlide.image}
-              alt={currentSlide.title}
-              loading="eager"
-              decoding="async"
-              className={currentSlide.fit === "cover" ? "a3-fit-cover" : "a3-fit-contain"}
-            />
+      ) : (
+        <div className="dual-leader-stage">
+          <div
+            className={`dual-leader-name left-entry ${
+              leadersRevealed ? "revealed" : ""
+            }`}
+          >
+            {config.leftLeader}
           </div>
 
-          {currentSlide.leaders && (
-            <div className="a3-leaders">
-              {currentSlide.leaders.map((leader) => (
-                <div key={leader.name} className="a3-leader-card">
-                  <strong>{leader.name}</strong>
-                  <span>{leader.role}</span>
-                </div>
-              ))}
-            </div>
-          )}
+          <button
+            type="button"
+            className={`x-trigger-btn ${leadersRevealed ? "active" : ""}`}
+            onClick={() => setLeadersRevealed(true)}
+            title="اضغط لإظهار القادة"
+          >
+            <span>X</span>
+          </button>
 
-          {currentSlide.showTracks && (
-            <div className="a3-tracks">
-              {MEDIA_TRACKS.map((track) => (
-                <div key={track.code} className="a3-track-card">
-                  <span className="track-tag">{track.code}</span>
-                  <h3>{track.title}</h3>
-                  <p>{track.desc}</p>
-                </div>
-              ))}
-            </div>
-          )}
+          <div
+            className={`dual-leader-name right-entry ${
+              leadersRevealed ? "revealed" : ""
+            }`}
+          >
+            {config.rightLeader}
+          </div>
+        </div>
+      )}
 
-          {currentSlide.showRoster && (
-            <div className="a3-roster-wrap">
-              <div>
-                <div className="a3-actions" style={{ marginBottom: 8 }}>
+      <div
+        className={`members-grid-container ${
+          leadersRevealed ? "grid-visible" : "grid-dimmed"
+        }`}
+      >
+        {members.map((name, idx) => (
+          <div
+            key={`${name}-${idx}`}
+            className={`member-pill-card ${
+              openMenuIdx === idx ? "menu-open" : ""
+            }`}
+            style={{ animationDelay: `${idx * 0.04}s` }}
+          >
+            {editingIdx === idx ? (
+              <div
+                className="inline-edit-box"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <input
+                  type="text"
+                  value={editValue}
+                  autoFocus
+                  onChange={(e) => setEditValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSaveEdit(idx);
+                    if (e.key === "Escape") setEditingIdx(null);
+                  }}
+                />
+                <button type="button" onClick={() => handleSaveEdit(idx)}>
+                  ✓
+                </button>
+              </div>
+            ) : (
+              <>
+                <span className="member-pill-text">{name}</span>
+                <div
+                  className="pill-menu-wrapper"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button
                     type="button"
-                    onClick={resetRoster}
-                    className="ghost-btn"
+                    className="three-dots-btn"
+                    onClick={() =>
+                      setOpenMenuIdx(openMenuIdx === idx ? null : idx)
+                    }
+                    aria-label="خيارات"
                   >
-                    استعادة القائمة الأصلية ({DEFAULT_ROSTER.length})
+                    ⋮
                   </button>
-                </div>
-
-                <div className="a3-roster-grid">
-                  {roster.map((member) => {
-                    const active = selectedMemberId === member.id;
-                    return (
-                      <div
-                        key={member.id}
-                        onClick={() => setSelectedMemberId(member.id)}
-                        className={`a3-member-card ${active ? "is-selected" : ""}`}
+                  {openMenuIdx === idx && (
+                    <div className="pill-dropdown-menu">
+                      <button
+                        type="button"
+                        onClick={() => handleStartEdit(idx)}
                       >
-                        <div
-                          className="a3-actions"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => startEdit(member)}
-                            className="mini-btn"
-                          >
-                            تعديل
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => deleteMember(member.id)}
-                            className="mini-btn danger"
-                          >
-                            حذف
-                          </button>
-                        </div>
-                        <h4>{member.name}</h4>
-                        <p>{member.role}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <form onSubmit={handleSubmit} className="a3-form">
-                <h3>{editingId ? "تعديل عضو" : "إضافة عضو جديد"}</h3>
-                <label>
-                  <span>الاسم</span>
-                  <input
-                    type="text"
-                    value={formState.name}
-                    onChange={(e) =>
-                      setFormState((p) => ({ ...p, name: e.target.value }))
-                    }
-                    placeholder="اكتب اسم العضو"
-                    required
-                  />
-                </label>
-
-                <label>
-                  <span>الدور</span>
-                  <input
-                    type="text"
-                    value={formState.role}
-                    onChange={(e) =>
-                      setFormState((p) => ({ ...p, role: e.target.value }))
-                    }
-                  />
-                </label>
-
-                <label>
-                  <span>المجموعة / المسار</span>
-                  <input
-                    type="text"
-                    value={formState.track}
-                    onChange={(e) =>
-                      setFormState((p) => ({ ...p, track: e.target.value }))
-                    }
-                  />
-                </label>
-
-                <label>
-                  <span>ملاحظات</span>
-                  <textarea
-                    rows={2}
-                    value={formState.notes}
-                    onChange={(e) =>
-                      setFormState((p) => ({ ...p, notes: e.target.value }))
-                    }
-                  />
-                </label>
-
-                <div className="a3-actions">
-                  <button type="submit" className="primary-btn">
-                    {editingId ? "حفظ التعديل" : "إضافة"}
-                  </button>
-                  {editingId && (
-                    <button
-                      type="button"
-                      onClick={() => setEditingId(null)}
-                      className="secondary-btn"
-                    >
-                      إلغاء
-                    </button>
+                        تغيير الاسم
+                      </button>
+                      <button
+                        type="button"
+                        className="danger"
+                        onClick={() => handleDelete(idx)}
+                      >
+                        حذف
+                      </button>
+                    </div>
                   )}
                 </div>
-              </form>
-            </div>
+              </>
+            )}
+          </div>
+        ))}
+
+        {/* خانة الإضافة + */}
+        {isAdding ? (
+          <form
+            className="member-pill-card add-input-card"
+            onSubmit={handleAddMember}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <input
+              type="text"
+              placeholder="اكتب الاسم..."
+              value={newName}
+              autoFocus
+              onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") setIsAdding(false);
+              }}
+            />
+            <button type="submit">✓</button>
+          </form>
+        ) : (
+          <button
+            type="button"
+            className="member-pill-card add-plus-card"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsAdding(true);
+            }}
+            title="إضافة اسم جديد"
+          >
+            <span className="plus-symbol">+</span>
+          </button>
+        )}
+
+        {/* خانات مهيأة بصرية للصفحات الجديدة */}
+        {Array.from({ length: remainingPlaceholders }).map((_, i) => (
+          <div
+            key={`slot-${i}`}
+            className="member-pill-card empty-slot-card"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsAdding(true);
+            }}
+            title="اضغط لإضافة اسم"
+          >
+            <span className="slot-dash">—</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [introExiting, setIntroExiting] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Slide 1 states
+  const [s1Typed, setS1Typed] = useState("");
+  const [s1SubReady, setS1SubReady] = useState(false);
+
+  // Slide 2 states
+  const [s2Typed, setS2Typed] = useState("");
+  const [s2RefReady, setS2RefReady] = useState(false);
+
+  // Slide 3 states
+  const [s3Opened, setS3Opened] = useState(false);
+
+  // Slide 4 states
+  const [s4Expanded, setS4Expanded] = useState(false);
+
+  // Slide 5 states
+  const [s5OpenTrack, setS5OpenTrack] = useState(null);
+
+  // Slide 6 (Top Leader) states: 0 = "؟", 1 = "TOP LEADER", 2 = "Names"
+  const [s6Stage, setS6Stage] = useState(0);
+
+  const handleEnterFromLogo = () => {
+    if (introExiting) return;
+    setIntroExiting(true);
+    setTimeout(() => {
+      setCurrentSlide(1);
+      setIntroExiting(false);
+    }, 460);
+  };
+
+  // Reset per-slide animations on slide change
+  useEffect(() => {
+    setMenuOpen(false);
+    setS3Opened(false);
+    setS4Expanded(false);
+    setS5OpenTrack(null);
+    setS6Stage(0);
+
+    if (currentSlide === 1) {
+      const fullText = "A3LMY100";
+      setS1Typed("");
+      setS1SubReady(false);
+      let i = 0;
+      const timer = setInterval(() => {
+        i += 1;
+        setS1Typed(fullText.slice(0, i));
+        if (i >= fullText.length) {
+          clearInterval(timer);
+          setTimeout(() => setS1SubReady(true), 250);
+        }
+      }, 110);
+      return () => clearInterval(timer);
+    }
+
+    if (currentSlide === 2) {
+      const verse =
+        "«فَلْيُضِئْ نُورُكُمْ هكَذَا قُدَّامَ النَّاسِ، لِكَيْ يَرَوْا أَعْمَالَكُمُ الْحَسَنَةَ، وَيُمَجِّدُوا أَبَاكُمُ الَّذِي فِي السَّمَاوَاتِ»";
+      setS2Typed("");
+      setS2RefReady(false);
+      let i = 0;
+      const timer = setInterval(() => {
+        i += 1;
+        setS2Typed(verse.slice(0, i));
+        if (i >= verse.length) {
+          clearInterval(timer);
+          setTimeout(() => setS2RefReady(true), 300);
+        }
+      }, 38);
+      return () => clearInterval(timer);
+    }
+  }, [currentSlide]);
+
+  // Keyboard navigation + Escape closes menu
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setMenuOpen(false);
+        return;
+      }
+      if (
+        document.activeElement &&
+        ["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)
+      ) {
+        return;
+      }
+      if (
+        e.key === "ArrowLeft" ||
+        e.key === "ArrowDown" ||
+        e.key === "PageDown"
+      ) {
+        setCurrentSlide((prev) => (prev < 12 ? prev + 1 : prev));
+      } else if (
+        e.key === "ArrowRight" ||
+        e.key === "ArrowUp" ||
+        e.key === "PageUp"
+      ) {
+        setCurrentSlide((prev) => (prev > 0 ? prev - 1 : prev));
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const activeSlideMeta =
+    SLIDES_META.find((s) => s.id === currentSlide) || SLIDES_META[0];
+
+  return (
+    <div
+      className="presentation-viewport"
+      dir="rtl"
+      onClick={() => {
+        if (menuOpen) setMenuOpen(false);
+      }}
+    >
+      {/* Fullscreen Animated Background Image (Hidden on Slide 0 Black Screen) */}
+      {currentSlide !== 0 && activeSlideMeta.bg && (
+        <>
+          <div
+            key={`bg-${currentSlide}`}
+            className="fullscreen-bg-layer"
+            style={{ backgroundImage: `url(${activeSlideMeta.bg})` }}
+          />
+          <div className="fullscreen-vignette-overlay" />
+        </>
+      )}
+
+      {/* Logo Trigger Button for Slides Menu (Closed by Default) */}
+      {currentSlide !== 0 && (
+        <div
+          className="top-corner-menu-wrap"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            type="button"
+            className={`logo-menu-btn ${menuOpen ? "open" : ""}`}
+            onClick={() => setMenuOpen((prev) => !prev)}
+            aria-label="فتح أو إغلاق قائمة التنقل"
+            aria-expanded={menuOpen}
+            title="قائمة السلايدات"
+          >
+            <span className="logo-continuous-aura" aria-hidden="true" />
+            <span className="logo-shutter-arc" aria-hidden="true" />
+            <img
+              src={logoLgna}
+              alt="Om ElNour Logo"
+              className="logo-trigger-img"
+            />
+          </button>
+
+          {menuOpen && (
+            <nav
+              className="corner-slides-drawer"
+              aria-label="السلايدات"
+              onPointerMove={(e) => {
+                const items = e.currentTarget.querySelectorAll(
+                  ".drawer-slide-item"
+                );
+                const pointerY = e.clientY;
+                items.forEach((el) => {
+                  const rect = el.getBoundingClientRect();
+                  const centerY = rect.top + rect.height / 2;
+                  const dist = Math.abs(pointerY - centerY);
+                  const radius = 115;
+                  if (dist < radius) {
+                    const factor = 1 - dist / radius;
+                    const scale = 1 + factor * 0.06;
+                    const shiftX = -factor * 6;
+                    el.style.setProperty("--wave-scale", scale.toFixed(3));
+                    el.style.setProperty("--wave-x", `${shiftX.toFixed(1)}px`);
+                    el.classList.add("is-hovered-wave");
+                  } else {
+                    el.style.setProperty("--wave-scale", "1");
+                    el.style.setProperty("--wave-x", "0px");
+                    el.classList.remove("is-hovered-wave");
+                  }
+                });
+              }}
+              onPointerLeave={(e) => {
+                const items = e.currentTarget.querySelectorAll(
+                  ".drawer-slide-item"
+                );
+                items.forEach((el) => {
+                  el.style.setProperty("--wave-scale", "1");
+                  el.style.setProperty("--wave-x", "0px");
+                  el.classList.remove("is-hovered-wave");
+                });
+              }}
+            >
+              <div className="drawer-header">
+                <span className="dock-brand">
+                  A3LMY100 <span>• 2026/2027</span>
+                </span>
+                <span className="dock-counter">{currentSlide} / 12</span>
+              </div>
+
+              <div className="drawer-slides-list">
+                {SLIDES_META.map((slide, idx) => (
+                  <button
+                    key={slide.id}
+                    type="button"
+                    className={`drawer-slide-item ${
+                      currentSlide === slide.id ? "active" : ""
+                    }`}
+                    style={{ "--idx": idx }}
+                    onClick={() => {
+                      setCurrentSlide(slide.id);
+                      setMenuOpen(false);
+                    }}
+                  >
+                    <span className="drawer-item-index">
+                      {String(slide.id).padStart(2, "0")}
+                    </span>
+                    <span className="drawer-item-label">{slide.label}</span>
+                  </button>
+                ))}
+              </div>
+            </nav>
           )}
-        </section>
+        </div>
+      )}
+
+      {/* Main Slide Stage */}
+      <main className="slides-stage">
+        {/* SLIDE 0: BLACK SCREEN + PULSING LOGO ENTRY */}
+        {currentSlide === 0 && (
+          <section
+            className={`slide-inner slide-0-splash ${
+              introExiting ? "is-exiting" : ""
+            }`}
+          >
+            <button
+              type="button"
+              className="splash-logo-btn"
+              onClick={handleEnterFromLogo}
+              aria-label="اضغط للدخول إلى العرض"
+              title="اضغط للدخول"
+            >
+              <span className="splash-logo-halo" aria-hidden="true" />
+              <img
+                src={logoLgna}
+                alt="Om ElNour Media Logo"
+                className="splash-logo-img"
+              />
+            </button>
+          </section>
+        )}
+
+        {/* SLIDE 1 */}
+        {currentSlide === 1 && (
+          <section className="slide-inner slide-1">
+            <h1 className="hero-typewriter">
+              {s1Typed}
+              <span className="typing-cursor">|</span>
+            </h1>
+            <p className={`hero-subtitle ${s1SubReady ? "show" : ""}`}>
+              اللجنة الإعلامية — مجموعة أم النور الكشفية
+            </p>
+            <div className={`hero-season-glow ${s1SubReady ? "show" : ""}`}>
+              2026 / 2027
+            </div>
+          </section>
+        )}
+
+        {/* SLIDE 2 */}
+        {currentSlide === 2 && (
+          <section className="slide-inner slide-2">
+            <div className="verse-handwriting-box">
+              <p className="verse-handwriting-text">{s2Typed}</p>
+              <div className={`verse-ref-glow ${s2RefReady ? "show" : ""}`}>
+                (متى ٥: ١٦)
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* SLIDE 3 */}
+        {currentSlide === 3 && (
+          <section className="slide-inner slide-3">
+            <button
+              type="button"
+              className={`structure-main-trigger ${s3Opened ? "opened" : ""}`}
+              onClick={() => setS3Opened(true)}
+            >
+              هيكل اللجنة
+            </button>
+
+            {s3Opened && (
+              <div className="structure-tree-reveal">
+                <div className="structure-year-badge">قيادة 2026 / 2027</div>
+
+                <div className="leader-node-group">
+                  <span className="node-role-label">قائد اللجنة</span>
+                  <div className="structure-bar primary-bar">ق. كيرلس نان</div>
+                </div>
+
+                {/* Animated Branching Arrows */}
+                <div className="dual-arrows-svg-wrap">
+                  <svg
+                    viewBox="0 0 400 90"
+                    className="animated-branch-svg"
+                    preserveAspectRatio="none"
+                  >
+                    <path
+                      d="M 200 0 C 200 45, 95 40, 95 82"
+                      className="branch-line"
+                    />
+                    <polygon
+                      points="95,90 88,76 102,76"
+                      className="branch-head"
+                    />
+
+                    <path
+                      d="M 200 0 C 200 45, 305 40, 305 82"
+                      className="branch-line"
+                    />
+                    <polygon
+                      points="305,90 298,76 312,76"
+                      className="branch-head"
+                    />
+                  </svg>
+                </div>
+
+                <div className="assistants-dual-row">
+                  <div className="structure-bar assistant-bar left-bar">
+                    م.ق ش/ يؤانا طارق
+                  </div>
+                  <div className="structure-bar assistant-bar right-bar">
+                    م.ق ق/يوسف فوكية
+                  </div>
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* SLIDE 4 */}
+        {currentSlide === 4 && (
+          <section className="slide-inner slide-4">
+            <div
+              className={`impact-hero-trigger ${s4Expanded ? "expanded" : ""}`}
+              onClick={() => setS4Expanded(true)}
+            >
+              <span className="impact-word">IMPACT</span>
+              <span className="impact-x5-burst">X 5</span>
+            </div>
+
+            {s4Expanded && (
+              <div className="impact-details-cascade">
+                <div className="tagline-sequence">
+                  <span className="tag-part p1">ONE TEAM</span>
+                  <span className="tag-sep s1">|</span>
+                  <span className="tag-part p2">MANY TALENTS</span>
+                  <span className="tag-sep s2">|</span>
+                  <span className="tag-part p3">ONE IMPACT</span>
+                </div>
+
+                <p className="impact-footer-signature">
+                  إعلامية — مجموعة أم النور الكشفية 2026 / 2027
+                </p>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* SLIDE 5 */}
+        {currentSlide === 5 && (
+          <section className="slide-inner slide-5">
+            <h2 className="tracks-main-heading">اللجنة الإعلامية</h2>
+
+            <div className="tracks-elements-grid">
+              {MEDIA_TRACKS.map((track, idx) => {
+                const isOpen = s5OpenTrack === track.id;
+                return (
+                  <div
+                    key={track.id}
+                    className={`track-element-card ${isOpen ? "open" : ""}`}
+                    style={{ animationDelay: `${idx * 0.08}s` }}
+                    onClick={() => setS5OpenTrack(isOpen ? null : track.id)}
+                  >
+                    <div className="track-element-front">
+                      <span className="track-icon-orb">{track.icon}</span>
+                      <span className="track-en-title">{track.en}</span>
+                    </div>
+
+                    <div className="track-element-drawer">
+                      <h3>{track.ar}</h3>
+                      <p>{track.desc}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* SLIDE 6 (TOP LEADER - Swapped from 7) */}
+        {currentSlide === 6 && (
+          <section className="slide-inner slide-6">
+            {s6Stage === 0 && (
+              <button
+                type="button"
+                className="mystery-question-orb"
+                onClick={() => setS6Stage(1)}
+                title="اضغط لاكتشاف المفاجأة"
+              >
+                <span>؟</span>
+              </button>
+            )}
+
+            {s6Stage >= 1 && (
+              <div className="top-leader-reveal-stage">
+                <button
+                  type="button"
+                  className={`top-leader-title-btn ${
+                    s6Stage === 2 ? "lifted" : ""
+                  }`}
+                  onClick={() => setS6Stage(2)}
+                >
+                  TOP LEADER
+                </button>
+
+                {s6Stage === 2 && (
+                  <div className="top-leaders-names-drop">
+                    <div className="top-leader-name-card card-1">
+                      ميرهان غبريال
+                    </div>
+                    <div className="top-leader-amp">&amp;</div>
+                    <div className="top-leader-name-card card-2">
+                      جورج موسي
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* SLIDES 7, 8, 9, 10, 11 (TEAM ROSTERS) */}
+        {TEAM_CONFIGS[currentSlide] && (
+          <RosterSlide
+            key={`roster-${currentSlide}`}
+            config={TEAM_CONFIGS[currentSlide]}
+          />
+        )}
+
+        {/* SLIDE 12 (CREATIVE TYPOGRAPHY + MOTION + LIGHT EFFECT) */}
+        {currentSlide === 12 && (
+          <section className="slide-inner slide-12">
+            <div className="thank-you-showcase" dir="ltr">
+              <div className="ty-aura-ring" aria-hidden="true" />
+              <div className="ty-scan-beam" aria-hidden="true" />
+
+              <h1 className="thank-you-kinetic-word" aria-label="Thank You">
+                {"Thank You".split("").map((char, idx) => (
+                  <span
+                    key={`${char}-${idx}`}
+                    className={`ty-char ${char === " " ? "ty-space" : ""}`}
+                    style={{ "--i": idx }}
+                  >
+                    {char === " " ? "\u00A0" : char}
+                  </span>
+                ))}
+              </h1>
+
+              <div className="ty-accent-bar" aria-hidden="true" />
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );
