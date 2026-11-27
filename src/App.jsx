@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./styles.css";
 import img1 from "../Images/1.png";
 import img2 from "../Images/2.jpg";
@@ -336,7 +336,6 @@ function RosterSlide({ config }) {
           </div>
         ))}
 
-        {/* خانة الإضافة + */}
         {isAdding ? (
           <form
             className="member-pill-card add-input-card"
@@ -369,7 +368,6 @@ function RosterSlide({ config }) {
           </button>
         )}
 
-        {/* خانات مهيأة بصرية للصفحات الجديدة */}
         {Array.from({ length: remainingPlaceholders }).map((_, i) => (
           <div
             key={`slot-${i}`}
@@ -389,9 +387,12 @@ function RosterSlide({ config }) {
 }
 
 export default function App() {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [introExiting, setIntroExiting] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const sectionRefs = useRef([]);
+  const s1StartedRef = useRef(false);
+  const s2StartedRef = useRef(false);
 
   // Slide 1 states
   const [s1Typed, setS1Typed] = useState("");
@@ -410,107 +411,102 @@ export default function App() {
   // Slide 5 states
   const [s5OpenTrack, setS5OpenTrack] = useState(null);
 
-  // Slide 6 (Top Leader) states: 0 = "؟", 1 = "TOP LEADER", 2 = "Names"
+  // Slide 6 states
   const [s6Stage, setS6Stage] = useState(0);
 
-  const handleEnterFromLogo = () => {
-    if (introExiting) return;
-    setIntroExiting(true);
-    setTimeout(() => {
-      setCurrentSlide(1);
-      setIntroExiting(false);
-    }, 460);
+  const startSlide1Typing = () => {
+    if (s1StartedRef.current) return;
+    s1StartedRef.current = true;
+    const fullText = "A3LMY100";
+    let i = 0;
+    const timer = setInterval(() => {
+      i += 1;
+      setS1Typed(fullText.slice(0, i));
+      if (i >= fullText.length) {
+        clearInterval(timer);
+        setTimeout(() => setS1SubReady(true), 250);
+      }
+    }, 110);
   };
 
-  // Reset per-slide animations on slide change
+  const startSlide2Typing = () => {
+    if (s2StartedRef.current) return;
+    s2StartedRef.current = true;
+    const verse =
+      "«فَلْيُضِئْ نُورُكُمْ هكَذَا قُدَّامَ النَّاسِ، لِكَيْ يَرَوْا أَعْمَالَكُمُ الْحَسَنَةَ، وَيُمَجِّدُوا أَبَاكُمُ الَّذِي فِي السَّمَاوَاتِ»";
+    let i = 0;
+    const timer = setInterval(() => {
+      i += 1;
+      setS2Typed(verse.slice(0, i));
+      if (i >= verse.length) {
+        clearInterval(timer);
+        setTimeout(() => setS2RefReady(true), 300);
+      }
+    }, 38);
+  };
+
+  // Track visible slide during vertical scroll & trigger typing animations once
   useEffect(() => {
-    setMenuOpen(false);
-    setS3Opened(false);
-    setS4Expanded(false);
-    setS5OpenTrack(null);
-    setS6Stage(0);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const slideId = Number(entry.target.getAttribute("data-slide-id"));
+            if (!Number.isNaN(slideId)) {
+              setActiveSlide(slideId);
+              if (slideId === 1) startSlide1Typing();
+              if (slideId === 2) startSlide2Typing();
+            }
+          }
+        });
+      },
+      { threshold: 0.45 }
+    );
 
-    if (currentSlide === 1) {
-      const fullText = "A3LMY100";
-      setS1Typed("");
-      setS1SubReady(false);
-      let i = 0;
-      const timer = setInterval(() => {
-        i += 1;
-        setS1Typed(fullText.slice(0, i));
-        if (i >= fullText.length) {
-          clearInterval(timer);
-          setTimeout(() => setS1SubReady(true), 250);
-        }
-      }, 110);
-      return () => clearInterval(timer);
-    }
+    sectionRefs.current.forEach((el) => {
+      if (el) observer.observe(el);
+    });
 
-    if (currentSlide === 2) {
-      const verse =
-        "«فَلْيُضِئْ نُورُكُمْ هكَذَا قُدَّامَ النَّاسِ، لِكَيْ يَرَوْا أَعْمَالَكُمُ الْحَسَنَةَ، وَيُمَجِّدُوا أَبَاكُمُ الَّذِي فِي السَّمَاوَاتِ»";
-      setS2Typed("");
-      setS2RefReady(false);
-      let i = 0;
-      const timer = setInterval(() => {
-        i += 1;
-        setS2Typed(verse.slice(0, i));
-        if (i >= verse.length) {
-          clearInterval(timer);
-          setTimeout(() => setS2RefReady(true), 300);
-        }
-      }, 38);
-      return () => clearInterval(timer);
-    }
-  }, [currentSlide]);
+    return () => observer.disconnect();
+  }, []);
 
-  // Keyboard navigation + Escape closes menu
+  // Escape closes menu
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         setMenuOpen(false);
-        return;
-      }
-      if (
-        document.activeElement &&
-        ["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)
-      ) {
-        return;
-      }
-      if (
-        e.key === "ArrowLeft" ||
-        e.key === "ArrowDown" ||
-        e.key === "PageDown"
-      ) {
-        setCurrentSlide((prev) => (prev < 12 ? prev + 1 : prev));
-      } else if (
-        e.key === "ArrowRight" ||
-        e.key === "ArrowUp" ||
-        e.key === "PageUp"
-      ) {
-        setCurrentSlide((prev) => (prev > 0 ? prev - 1 : prev));
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  const scrollToSlide = (id) => {
+    const target = sectionRefs.current[id];
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (id === 1) startSlide1Typing();
+      if (id === 2) startSlide2Typing();
+    }
+    setMenuOpen(false);
+  };
+
   const activeSlideMeta =
-    SLIDES_META.find((s) => s.id === currentSlide) || SLIDES_META[0];
+    SLIDES_META.find((s) => s.id === activeSlide) || SLIDES_META[0];
 
   return (
     <div
-      className="presentation-viewport"
+      className="presentation-viewport scroll-mode"
       dir="rtl"
       onClick={() => {
         if (menuOpen) setMenuOpen(false);
       }}
     >
-      {/* Fullscreen Animated Background Image (Hidden on Slide 0 Black Screen) */}
-      {currentSlide !== 0 && activeSlideMeta.bg && (
+      {/* Dynamic Background for current visible slide */}
+      {activeSlide !== 0 && activeSlideMeta.bg && (
         <>
           <div
-            key={`bg-${currentSlide}`}
+            key={`bg-${activeSlide}`}
             className="fullscreen-bg-layer"
             style={{ backgroundImage: `url(${activeSlideMeta.bg})` }}
           />
@@ -518,8 +514,8 @@ export default function App() {
         </>
       )}
 
-      {/* Logo Trigger Button for Slides Menu (Closed by Default) */}
-      {currentSlide !== 0 && (
+      {/* Floating Logo Navigation Menu */}
+      {activeSlide !== 0 && (
         <div
           className="top-corner-menu-wrap"
           onClick={(e) => e.stopPropagation()}
@@ -542,49 +538,12 @@ export default function App() {
           </button>
 
           {menuOpen && (
-            <nav
-              className="corner-slides-drawer"
-              aria-label="السلايدات"
-              onPointerMove={(e) => {
-                const items = e.currentTarget.querySelectorAll(
-                  ".drawer-slide-item"
-                );
-                const pointerY = e.clientY;
-                items.forEach((el) => {
-                  const rect = el.getBoundingClientRect();
-                  const centerY = rect.top + rect.height / 2;
-                  const dist = Math.abs(pointerY - centerY);
-                  const radius = 115;
-                  if (dist < radius) {
-                    const factor = 1 - dist / radius;
-                    const scale = 1 + factor * 0.06;
-                    const shiftX = -factor * 6;
-                    el.style.setProperty("--wave-scale", scale.toFixed(3));
-                    el.style.setProperty("--wave-x", `${shiftX.toFixed(1)}px`);
-                    el.classList.add("is-hovered-wave");
-                  } else {
-                    el.style.setProperty("--wave-scale", "1");
-                    el.style.setProperty("--wave-x", "0px");
-                    el.classList.remove("is-hovered-wave");
-                  }
-                });
-              }}
-              onPointerLeave={(e) => {
-                const items = e.currentTarget.querySelectorAll(
-                  ".drawer-slide-item"
-                );
-                items.forEach((el) => {
-                  el.style.setProperty("--wave-scale", "1");
-                  el.style.setProperty("--wave-x", "0px");
-                  el.classList.remove("is-hovered-wave");
-                });
-              }}
-            >
+            <nav className="corner-slides-drawer" aria-label="السلايدات">
               <div className="drawer-header">
                 <span className="dock-brand">
                   A3LMY100 <span>• 2026/2027</span>
                 </span>
-                <span className="dock-counter">{currentSlide} / 12</span>
+                <span className="dock-counter">{activeSlide} / 12</span>
               </div>
 
               <div className="drawer-slides-list">
@@ -593,13 +552,10 @@ export default function App() {
                     key={slide.id}
                     type="button"
                     className={`drawer-slide-item ${
-                      currentSlide === slide.id ? "active" : ""
+                      activeSlide === slide.id ? "active" : ""
                     }`}
                     style={{ "--idx": idx }}
-                    onClick={() => {
-                      setCurrentSlide(slide.id);
-                      setMenuOpen(false);
-                    }}
+                    onClick={() => scrollToSlide(slide.id)}
                   >
                     <span className="drawer-item-index">
                       {String(slide.id).padStart(2, "0")}
@@ -613,21 +569,21 @@ export default function App() {
         </div>
       )}
 
-      {/* Main Slide Stage */}
-      <main className="slides-stage">
-        {/* SLIDE 0: BLACK SCREEN + PULSING LOGO ENTRY */}
-        {currentSlide === 0 && (
-          <section
-            className={`slide-inner slide-0-splash ${
-              introExiting ? "is-exiting" : ""
-            }`}
-          >
+      {/* Vertical Scrollable Presentation */}
+      <main className="slides-stage vertical-scroll-stage">
+        {/* SLIDE 0: SPLASH ENTRY */}
+        <section
+          ref={(el) => (sectionRefs.current[0] = el)}
+          data-slide-id={0}
+          className="slide-section slide-0-splash"
+        >
+          <div className="slide-inner">
             <button
               type="button"
               className="splash-logo-btn"
-              onClick={handleEnterFromLogo}
-              aria-label="اضغط للدخول إلى العرض"
-              title="اضغط للدخول"
+              onClick={() => scrollToSlide(1)}
+              aria-label="اضغط للنزول إلى العرض"
+              title="اضغط للبدء"
             >
               <span className="splash-logo-halo" aria-hidden="true" />
               <img
@@ -636,12 +592,16 @@ export default function App() {
                 className="splash-logo-img"
               />
             </button>
-          </section>
-        )}
+          </div>
+        </section>
 
         {/* SLIDE 1 */}
-        {currentSlide === 1 && (
-          <section className="slide-inner slide-1">
+        <section
+          ref={(el) => (sectionRefs.current[1] = el)}
+          data-slide-id={1}
+          className="slide-section"
+        >
+          <div className="slide-inner slide-1">
             <h1 className="hero-typewriter">
               {s1Typed}
               <span className="typing-cursor">|</span>
@@ -652,24 +612,32 @@ export default function App() {
             <div className={`hero-season-glow ${s1SubReady ? "show" : ""}`}>
               2026 / 2027
             </div>
-          </section>
-        )}
+          </div>
+        </section>
 
         {/* SLIDE 2 */}
-        {currentSlide === 2 && (
-          <section className="slide-inner slide-2">
+        <section
+          ref={(el) => (sectionRefs.current[2] = el)}
+          data-slide-id={2}
+          className="slide-section"
+        >
+          <div className="slide-inner slide-2">
             <div className="verse-handwriting-box">
               <p className="verse-handwriting-text">{s2Typed}</p>
               <div className={`verse-ref-glow ${s2RefReady ? "show" : ""}`}>
                 (متى ٥: ١٦)
               </div>
             </div>
-          </section>
-        )}
+          </div>
+        </section>
 
         {/* SLIDE 3 */}
-        {currentSlide === 3 && (
-          <section className="slide-inner slide-3">
+        <section
+          ref={(el) => (sectionRefs.current[3] = el)}
+          data-slide-id={3}
+          className="slide-section"
+        >
+          <div className="slide-inner slide-3">
             <button
               type="button"
               className={`structure-main-trigger ${s3Opened ? "opened" : ""}`}
@@ -687,7 +655,6 @@ export default function App() {
                   <div className="structure-bar primary-bar">ق. كيرلس نان</div>
                 </div>
 
-                {/* Animated Branching Arrows */}
                 <div className="dual-arrows-svg-wrap">
                   <svg
                     viewBox="0 0 400 90"
@@ -724,12 +691,16 @@ export default function App() {
                 </div>
               </div>
             )}
-          </section>
-        )}
+          </div>
+        </section>
 
         {/* SLIDE 4 */}
-        {currentSlide === 4 && (
-          <section className="slide-inner slide-4">
+        <section
+          ref={(el) => (sectionRefs.current[4] = el)}
+          data-slide-id={4}
+          className="slide-section"
+        >
+          <div className="slide-inner slide-4">
             <div
               className={`impact-hero-trigger ${s4Expanded ? "expanded" : ""}`}
               onClick={() => setS4Expanded(true)}
@@ -753,12 +724,16 @@ export default function App() {
                 </p>
               </div>
             )}
-          </section>
-        )}
+          </div>
+        </section>
 
         {/* SLIDE 5 */}
-        {currentSlide === 5 && (
-          <section className="slide-inner slide-5">
+        <section
+          ref={(el) => (sectionRefs.current[5] = el)}
+          data-slide-id={5}
+          className="slide-section"
+        >
+          <div className="slide-inner slide-5">
             <h2 className="tracks-main-heading">اللجنة الإعلامية</h2>
 
             <div className="tracks-elements-grid">
@@ -784,12 +759,16 @@ export default function App() {
                 );
               })}
             </div>
-          </section>
-        )}
+          </div>
+        </section>
 
-        {/* SLIDE 6 (TOP LEADER - Swapped from 7) */}
-        {currentSlide === 6 && (
-          <section className="slide-inner slide-6">
+        {/* SLIDE 6 (TOP LEADER) */}
+        <section
+          ref={(el) => (sectionRefs.current[6] = el)}
+          data-slide-id={6}
+          className="slide-section"
+        >
+          <div className="slide-inner slide-6">
             {s6Stage === 0 && (
               <button
                 type="button"
@@ -826,20 +805,28 @@ export default function App() {
                 )}
               </div>
             )}
+          </div>
+        </section>
+
+        {/* SLIDES 7 TO 11 (TEAM ROSTERS) */}
+        {[7, 8, 9, 10, 11].map((slideId) => (
+          <section
+            key={slideId}
+            ref={(el) => (sectionRefs.current[slideId] = el)}
+            data-slide-id={slideId}
+            className="slide-section"
+          >
+            <RosterSlide config={TEAM_CONFIGS[slideId]} />
           </section>
-        )}
+        ))}
 
-        {/* SLIDES 7, 8, 9, 10, 11 (TEAM ROSTERS) */}
-        {TEAM_CONFIGS[currentSlide] && (
-          <RosterSlide
-            key={`roster-${currentSlide}`}
-            config={TEAM_CONFIGS[currentSlide]}
-          />
-        )}
-
-        {/* SLIDE 12 (CREATIVE TYPOGRAPHY + MOTION + LIGHT EFFECT) */}
-        {currentSlide === 12 && (
-          <section className="slide-inner slide-12">
+        {/* SLIDE 12 (THANK YOU) */}
+        <section
+          ref={(el) => (sectionRefs.current[12] = el)}
+          data-slide-id={12}
+          className="slide-section"
+        >
+          <div className="slide-inner slide-12">
             <div className="thank-you-showcase" dir="ltr">
               <div className="ty-aura-ring" aria-hidden="true" />
               <div className="ty-scan-beam" aria-hidden="true" />
@@ -858,8 +845,8 @@ export default function App() {
 
               <div className="ty-accent-bar" aria-hidden="true" />
             </div>
-          </section>
-        )}
+          </div>
+        </section>
       </main>
     </div>
   );
