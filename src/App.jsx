@@ -130,7 +130,7 @@ const TEAM_CONFIGS = {
     teamName: "IMPACT II",
     mode: "dual_x",
     leftLeader: "فيرو اشرف",
-    rightLeader: "فادي القس",
+    rightLeader: "يوسف ممدوح ",
     defaultMembers: [],
     placeholderSlots: 15,
   },
